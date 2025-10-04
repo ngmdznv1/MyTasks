@@ -1,29 +1,152 @@
 {% extends 'base.html' %}
 
+{% block title %}Вход{% endblock %}
+
 {% block main %}
+<div class="fade-in-up">
+    <!-- Заголовок страницы -->
+    <div class="text-center mb-5">
+        <h1 class="page-title">
+            <i class="bi bi-box-arrow-in-right me-3"></i>Добро пожаловать!
+        </h1>
+        <p class="text-white-50 fs-5">Войдите в свой аккаунт, чтобы управлять задачами</p>
+    </div>
 
-<div class="d-flex justify-content-center">
-    <div class="col-4"> <!-- Уменьшена ширина колонки -->
-        <h4 class="text-center mt-5">Авторизация</h4>
+    <!-- Форма входа -->
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="form-container">
+                <form action="" method="POST" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Поле логина -->
+                    <div class="mb-4">
+                        <label for="id_username" class="form-label">
+                            <i class="bi bi-person me-2"></i>Имя пользователя
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="id_username" 
+                               name="username" 
+                               placeholder="Введите имя пользователя..."
+                               required>
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите имя пользователя.
+                        </div>
+                    </div>
 
-        <div class="card p-3 mt-4" style="width: 550px; margin: 0 auto; height: 330px;"> <!-- Уменьшена ширина карточки -->
-            <form action="" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-success" style="width: 100%;">Войти</button>
-                </div>
-            </form>
-            <hr>
+                    <!-- Поле пароля -->
+                    <div class="mb-4">
+                        <label for="id_password" class="form-label">
+                            <i class="bi bi-lock me-2"></i>Пароль
+                        </label>
+                        <div class="input-group">
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="id_password" 
+                                   name="password" 
+                                   placeholder="Введите пароль..."
+                                   required>
+                            <button class="btn btn-outline-secondary" 
+                                    type="button" 
+                                    onclick="togglePassword()">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите пароль.
+                        </div>
+                    </div>
 
-            <p class="text-center">Нет аккаунта?</p>
-            <div class="d-flex justify-content-center">
-                <a href="{% url 'register' %}" class="btn btn-primary" style="width: 100%;">Зарегистрироваться</a>
+                    <!-- Кнопка входа -->
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                        </button>
+                    </div>
+
+                    <!-- Разделитель -->
+                    <div class="text-center mb-4">
+                        <hr class="my-4">
+                        <span class="text-muted bg-white px-3">или</span>
+                    </div>
+
+                    <!-- Ссылка на регистрацию -->
+                    <div class="text-center">
+                        <p class="mb-3">Нет аккаунта?</p>
+                        <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Зарегистрироваться
+                        </a>
+                    </div>
+                </form>
             </div>
-
         </div>
+    </div>
 
+    <!-- Дополнительная информация -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8 col-xl-6">
+            <div class="glass-effect rounded-3 p-4">
+                <h5 class="text-white mb-3">
+                    <i class="bi bi-info-circle me-2"></i>Преимущества MyTasks
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled text-white-50">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle me-2"></i>Простое управление задачами
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle me-2"></i>Красивый современный интерфейс
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled text-white-50">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle me-2"></i>Быстрый поиск и фильтрация
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle me-2"></i>Статистика выполнения
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-{% endblock main %}
+<script>
+// Валидация формы
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Переключение видимости пароля
+function togglePassword() {
+    const passwordField = document.getElementById('id_password');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.className = 'bi bi-eye';
+    }
+}
+</script>
+{% endblock %}

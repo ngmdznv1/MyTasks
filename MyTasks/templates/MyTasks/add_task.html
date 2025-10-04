@@ -1,19 +1,168 @@
 {% extends 'base.html' %}
 
+{% block title %}Добавить задачу{% endblock %}
+
 {% block main %}
+<div class="fade-in-up">
+    <!-- Заголовок страницы -->
+    <div class="text-center mb-5">
+        <h1 class="page-title">
+            <i class="bi bi-plus-circle me-3"></i>Добавить новую задачу
+        </h1>
+        <p class="text-white-50 fs-5">Создайте новую задачу и сделайте шаг к достижению цели</p>
+    </div>
 
-<div class="d-flex justify-content-center">
-    <div class="col-6">
-            <h4 class="text-center">Добавление личной задачи</h4>
-        <div class="card p-3 mt-4">
-            <form action="" method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button class="btn btn-success" type="submit">Добавить</button>
-            </form>
+    <!-- Форма добавления задачи -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="form-container">
+                <form action="" method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Название задачи -->
+                    <div class="mb-4">
+                        <label for="id_title" class="form-label">
+                            <i class="bi bi-card-text me-2"></i>Название задачи
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="id_title" 
+                               name="title" 
+                               placeholder="Введите название задачи..."
+                               required>
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите название задачи.
+                        </div>
+                    </div>
 
+                    <!-- Описание задачи -->
+                    <div class="mb-4">
+                        <label for="id_description" class="form-label">
+                            <i class="bi bi-file-text me-2"></i>Описание
+                        </label>
+                        <textarea class="form-control" 
+                                  id="id_description" 
+                                  name="description" 
+                                  rows="4" 
+                                  placeholder="Опишите детали задачи..."
+                                  required></textarea>
+                        <div class="invalid-feedback">
+                            Пожалуйста, добавьте описание задачи.
+                        </div>
+                    </div>
+
+                    <!-- Срок выполнения -->
+                    <div class="mb-4">
+                        <label for="id_due_date" class="form-label">
+                            <i class="bi bi-calendar-event me-2"></i>Срок выполнения
+                        </label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="id_due_date" 
+                               name="due_date" 
+                               required>
+                        <div class="invalid-feedback">
+                            Пожалуйста, выберите срок выполнения.
+                        </div>
+                    </div>
+
+                    <!-- Приоритет -->
+                    <div class="mb-4">
+                        <label for="id_priority" class="form-label">
+                            <i class="bi bi-flag me-2"></i>Приоритет
+                        </label>
+                        <select class="form-control" id="id_priority" name="priority">
+                            <option value="low">🟢 Низкий</option>
+                            <option value="medium" selected>🟡 Средний</option>
+                            <option value="high">🔴 Высокий</option>
+                        </select>
+                    </div>
+
+                    <!-- Категория -->
+                    <div class="mb-4">
+                        <label for="id_category" class="form-label">
+                            <i class="bi bi-tags me-2"></i>Категория
+                        </label>
+                        <select class="form-control" id="id_category" name="category">
+                            <option value="work">💼 Работа</option>
+                            <option value="personal">👤 Личное</option>
+                            <option value="health">🏥 Здоровье</option>
+                            <option value="education">📚 Образование</option>
+                            <option value="shopping">🛒 Покупки</option>
+                            <option value="other">📋 Другое</option>
+                        </select>
+                    </div>
+
+                    <!-- Кнопки действий -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'main' %}" class="btn btn-outline-secondary me-md-2">
+                            <i class="bi bi-arrow-left me-2"></i>Назад
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-lg me-2"></i>Создать задачу
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Советы -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8 col-xl-6">
+            <div class="glass-effect rounded-3 p-4">
+                <h5 class="text-white mb-3">
+                    <i class="bi bi-lightbulb me-2"></i>Советы для эффективного планирования
+                </h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled text-white-50">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle me-2"></i>Будьте конкретными в описании
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle me-2"></i>Устанавливайте реалистичные сроки
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled text-white-50">
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle me-2"></i>Разбивайте большие задачи на части
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-check-circle me-2"></i>Регулярно проверяйте прогресс
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-{% endblock main %}
+<script>
+// Валидация формы
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Устанавливаем минимальную дату как сегодня
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('id_due_date').min = today;
+});
+</script>
+{% endblock %}

@@ -1,59 +1,369 @@
 {% extends 'base.html' %}
 
+{% block title %}Главная{% endblock %}
+
 {% block main %}
-<div class="d-flex justify-content-center">
-    <h2>Ваши личные задачи</h2>
-</div>
+<div class="fade-in-up">
+    <!-- Заголовок страницы -->
+    <div class="text-center mb-5">
+        <h1 class="page-title">
+            <i class="bi bi-check2-square me-3 icon-bounce"></i>Ваши задачи
+        </h1>
+        <p class="text-white-50 fs-5">Организуйте свою жизнь с помощью умного планирования</p>
+    </div>
 
-<!-- Контейнер для карточек -->
-<div class="row">
-    {% for task in tasks %}
-    <div class="col-4 mb-4">
-        <div class="card text-center" style="height: 100%; max-height: 500px;">
-            <div class="card-body">
-                {% if edit_task_id == task.id|stringformat:"s" %}
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="task_id" value="{{ task.id }}">
-                    <div class="form-group">
-                        <input type="text" name="title" value="{{ task.title }}" class="form-control mb-2" required>
-                        <textarea name="description" class="form-control mb-2" required>{{ task.description }}</textarea>
-                        <input type="date" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}" class="form-control mb-2" required>
-                        <button type="submit" name="save_task" class="btn btn-success">Сохранить</button>
-                        <a href="{% url 'main' %}" class="btn btn-secondary">Отмена</a>
-                    </div>
-                </form>
-                {% else %}
-                <h5 class="card-title">{{ task.title }}</h5>
-                <p class="card-text">{{ task.description }}</p>
-                <p class="card-text">
-                    <small class="text-muted">Создано: {{ task.created_at }}</small><br>
-                    <small class="text-muted">Срок выполнения: {{ task.due_date }}</small>
-                </p>
-                <hr>
-                <small class="text-muted">Завершена ли?</small>
-
-                <form action="{% url 'mark_task_completed' task.id %}" method="POST">
-                    {% csrf_token %}
-                    <input type="checkbox" name="completed" {% if task.is_completed %}checked{% endif %} onchange="this.form.submit()"/>
-                </form>
-
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="edit_task_id" value="{{ task.id }}">
-                    <button type="submit" class="btn btn-primary" style="width: 70%;">Редактировать задачу</button>
-                </form>
-                {% endif %}
-
-                <hr>
-
-                <form action="{% url 'delete_task' task.id %}" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger" style="width: 165px;">Удалить задачу</button>
-                </form>
+    <!-- Прогресс выполнения -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8">
+            <div class="glass-effect rounded-3 p-4">
+                <h5 class="text-white mb-3">
+                    <i class="bi bi-graph-up me-2"></i>Прогресс выполнения
+                </h5>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="d-flex justify-content-between text-white-50 mt-2">
+                    <small>Выполнено: <span id="completedCount">0</span></small>
+                    <small>Всего: <span id="totalCount">0</span></small>
+                </div>
             </div>
         </div>
     </div>
-    {% endfor %}
+
+    <!-- Статистика -->
+    <div class="stats-container mb-5">
+        <div class="stat-card hover-lift">
+            <div class="stat-number" id="total-tasks">{{ tasks|length }}</div>
+            <div class="stat-label">Всего задач</div>
+            <i class="bi bi-list-task fs-1 text-primary mt-2"></i>
+        </div>
+        <div class="stat-card hover-lift">
+            <div class="stat-number" id="active-tasks">0</div>
+            <div class="stat-label">Активных задач</div>
+            <i class="bi bi-clock fs-1 text-warning mt-2"></i>
+        </div>
+        <div class="stat-card hover-lift">
+            <div class="stat-number" id="completed-tasks">0</div>
+            <div class="stat-label">Выполненных</div>
+            <i class="bi bi-check-circle fs-1 text-success mt-2"></i>
+        </div>
+        <div class="stat-card hover-lift">
+            <div class="stat-number" id="overdue-tasks">0</div>
+            <div class="stat-label">Просроченных</div>
+            <i class="bi bi-exclamation-triangle fs-1 text-danger mt-2"></i>
+        </div>
+    </div>
+
+    <!-- Кнопка добавления задачи -->
+    <div class="text-center mb-4">
+        <a href="{% url 'add_task' %}" class="btn btn-primary btn-lg pulse hover-glow">
+            <i class="bi bi-plus-circle me-2 icon-spin"></i>Добавить новую задачу
+        </a>
+    </div>
+
+    <!-- Список задач -->
+    {% if tasks %}
+    <div class="row g-4" id="tasksContainer">
+        {% for task in tasks %}
+        <div class="col-lg-4 col-md-6">
+            <div class="task-card {% if task.is_completed %}completed{% endif %} hover-lift cursor-grab" 
+                 draggable="true" data-task-id="{{ task.id }}">
+                {% if edit_task_id == task.id|stringformat:"s" %}
+                <!-- Форма редактирования -->
+                <div class="task-card-header">
+                    <h5 class="task-card-title">
+                        <i class="bi bi-pencil me-2"></i>Редактирование задачи
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                        <div class="mb-3">
+                            <label class="form-label">Название</label>
+                            <input type="text" name="title" value="{{ task.title }}" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Описание</label>
+                            <textarea name="description" class="form-control" rows="3" required>{{ task.description }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Срок выполнения</label>
+                            <input type="date" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}" class="form-control" required>
+                        </div>
+                        <div class="task-actions">
+                            <button type="submit" name="save_task" class="btn btn-success hover-lift">
+                                <i class="bi bi-check-lg me-1"></i>Сохранить
+                            </button>
+                            <a href="{% url 'main' %}" class="btn btn-outline-secondary hover-lift">
+                                <i class="bi bi-x-lg me-1"></i>Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <!-- Отображение задачи -->
+                <div class="task-card-header">
+                    <h5 class="task-card-title">
+                        <i class="bi bi-card-text me-2"></i>{{ task.title }}
+                    </h5>
+                    <div class="task-card-meta">
+                        <i class="bi bi-calendar-event me-1"></i>{{ task.created_at|date:"d.m.Y" }}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="task-description">{{ task.description }}</p>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>
+                            Срок: {{ task.due_date|date:"d.m.Y" }}
+                            {% if task.due_date < today %}
+                                <span class="badge bg-danger ms-2">Просрочено</span>
+                            {% endif %}
+                        </small>
+                    </div>
+
+                    <!-- Статус задачи -->
+                    <div class="task-status">
+                        <input type="checkbox" 
+                               class="task-checkbox" 
+                               name="completed" 
+                               {% if task.is_completed %}checked{% endif %} 
+                               onchange="toggleTaskStatus({{ task.id }}, this.checked)"
+                               id="task-{{ task.id }}">
+                        <label class="form-check-label fw-medium" for="task-{{ task.id }}">
+                            {% if task.is_completed %}
+                                <i class="bi bi-check-circle-fill text-success me-1"></i>Выполнено
+                            {% else %}
+                                <i class="bi bi-circle me-1"></i>В процессе
+                            {% endif %}
+                        </label>
+                    </div>
+
+                    <!-- Действия -->
+                    <div class="task-actions">
+                        <form method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="edit_task_id" value="{{ task.id }}">
+                            <button type="submit" class="btn btn-outline-primary btn-sm hover-lift">
+                                <i class="bi bi-pencil me-1"></i>Редактировать
+                            </button>
+                        </form>
+                        
+                        <button type="button" class="btn btn-outline-danger btn-sm hover-lift" 
+                                onclick="confirmDelete({{ task.id }})">
+                            <i class="bi bi-trash me-1"></i>Удалить
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Пустое состояние -->
+    <div class="empty-state">
+        <i class="bi bi-clipboard-check fs-1 icon-bounce"></i>
+        <h3>У вас пока нет задач</h3>
+        <p>Создайте свою первую задачу и начните организовывать свою жизнь!</p>
+        <a href="{% url 'add_task' %}" class="btn btn-primary btn-lg hover-glow">
+            <i class="bi bi-plus-circle me-2 icon-spin"></i>Создать первую задачу
+        </a>
+    </div>
+    {% endif %}
 </div>
+
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal-backdrop" id="deleteModal" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                Подтверждение удаления
+            </h5>
+        </div>
+        <div class="modal-body">
+            <p>Вы уверены, что хотите удалить эту задачу?</p>
+            <p class="text-muted">Это действие нельзя отменить.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">
+                <i class="bi bi-x-lg me-1"></i>Отмена
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                <i class="bi bi-trash me-1"></i>Удалить
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Расширенная система управления задачами
+class TaskManager {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.setupDragAndDrop();
+        this.updateStatistics();
+        this.updateProgress();
+        this.setupAnimations();
+    }
+
+    setupDragAndDrop() {
+        const taskCards = document.querySelectorAll('.task-card[draggable="true"]');
+        
+        taskCards.forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', e.target.outerHTML);
+            });
+
+            card.addEventListener('dragend', (e) => {
+                e.target.classList.remove('dragging');
+            });
+
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+
+            card.addEventListener('drop', (e) => {
+                e.preventDefault();
+                // Здесь можно добавить логику для изменения порядка задач
+                this.showNotification('Задача перемещена!', 'success');
+            });
+        });
+    }
+
+    updateStatistics() {
+        const cards = document.querySelectorAll('.task-card');
+        let activeCount = 0;
+        let completedCount = 0;
+        let overdueCount = 0;
+        
+        cards.forEach(card => {
+            if (card.classList.contains('completed')) {
+                completedCount++;
+            } else {
+                activeCount++;
+            }
+            
+            // Проверяем просроченные задачи
+            const dueDateText = card.querySelector('.text-muted');
+            if (dueDateText && dueDateText.textContent.includes('Просрочено')) {
+                overdueCount++;
+            }
+        });
+        
+        document.getElementById('active-tasks').textContent = activeCount;
+        document.getElementById('completed-tasks').textContent = completedCount;
+        document.getElementById('overdue-tasks').textContent = overdueCount;
+        document.getElementById('totalCount').textContent = cards.length;
+        document.getElementById('completedCount').textContent = completedCount;
+    }
+
+    updateProgress() {
+        const total = parseInt(document.getElementById('totalCount').textContent);
+        const completed = parseInt(document.getElementById('completedCount').textContent);
+        const progress = total > 0 ? (completed / total) * 100 : 0;
+        
+        const progressBar = document.getElementById('progressBar');
+        progressBar.style.width = progress + '%';
+        
+        // Анимация прогресс-бара
+        setTimeout(() => {
+            progressBar.style.transition = 'width 1s ease';
+        }, 500);
+    }
+
+    setupAnimations() {
+        const cards = document.querySelectorAll('.task-card');
+        
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    }
+
+    showNotification(message, type = 'info') {
+        if (window.notificationManager) {
+            window.notificationManager.show(message, type);
+        }
+    }
+}
+
+// Глобальные функции
+function toggleTaskStatus(taskId, isCompleted) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/task/${taskId}/mark_completed/`;
+    
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = 'csrfmiddlewaretoken';
+    csrfToken.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    const completedInput = document.createElement('input');
+    completedInput.type = 'hidden';
+    completedInput.name = 'completed';
+    completedInput.value = isCompleted;
+    
+    form.appendChild(csrfToken);
+    form.appendChild(completedInput);
+    document.body.appendChild(form);
+    form.submit();
+    
+    // Показываем уведомление
+    if (window.taskManager) {
+        const message = isCompleted ? 'Задача выполнена! 🎉' : 'Задача возвращена в работу';
+        const type = isCompleted ? 'success' : 'info';
+        window.taskManager.showNotification(message, type);
+    }
+}
+
+function confirmDelete(taskId) {
+    const modal = document.getElementById('deleteModal');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    
+    modal.style.display = 'block';
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+    
+    confirmBtn.onclick = () => {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/task/${taskId}/delete/`;
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+    };
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    window.taskManager = new TaskManager();
+});
+</script>
 {% endblock %}

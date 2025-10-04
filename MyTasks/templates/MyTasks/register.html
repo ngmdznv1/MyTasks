@@ -1,30 +1,234 @@
 {% extends 'base.html' %}
 
+{% block title %}Регистрация{% endblock %}
 
 {% block main %}
+<div class="fade-in-up">
+    <!-- Заголовок страницы -->
+    <div class="text-center mb-5">
+        <h1 class="page-title">
+            <i class="bi bi-person-plus me-3"></i>Создать аккаунт
+        </h1>
+        <p class="text-white-50 fs-5">Присоединяйтесь к MyTasks и начните организовывать свою жизнь</p>
+    </div>
 
-<div class="d-flex justify-content-center">
-    <div class="col-6">
-        <h4 class="text-center mt-5">Регистрация</h4>
+    <!-- Форма регистрации -->
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="form-container">
+                <form action="" method="POST" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Имя пользователя -->
+                    <div class="mb-4">
+                        <label for="id_username" class="form-label">
+                            <i class="bi bi-person me-2"></i>Имя пользователя
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="id_username" 
+                               name="username" 
+                               placeholder="Введите имя пользователя..."
+                               required>
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите имя пользователя.
+                        </div>
+                        <div class="form-text">Имя пользователя должно быть уникальным</div>
+                    </div>
 
-        <div class="card p-3 mt-4">
-            <form action="" method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-success" style="width: 30%;">Зарегистрироваться</button>
-                </div>
-            </form>
-            <hr>
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label for="id_email" class="form-label">
+                            <i class="bi bi-envelope me-2"></i>Email адрес
+                        </label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="id_email" 
+                               name="email" 
+                               placeholder="Введите email..."
+                               required>
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите корректный email адрес.
+                        </div>
+                    </div>
 
-            <p class="text-center">Уже есть аккаунт?</p>
-            <div class="d-flex justify-content-center">
-                <a href="{% url 'login' %}" class="btn btn-primary" style="width: 65%;">Войти в аккаунт</a>
+                    <!-- Пароль -->
+                    <div class="mb-4">
+                        <label for="id_password1" class="form-label">
+                            <i class="bi bi-lock me-2"></i>Пароль
+                        </label>
+                        <div class="input-group">
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="id_password1" 
+                                   name="password1" 
+                                   placeholder="Введите пароль..."
+                                   required>
+                            <button class="btn btn-outline-secondary" 
+                                    type="button" 
+                                    onclick="togglePassword('id_password1', 'toggleIcon1')">
+                                <i class="bi bi-eye" id="toggleIcon1"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите пароль.
+                        </div>
+                        <div class="form-text">Пароль должен содержать минимум 8 символов</div>
+                    </div>
+
+                    <!-- Подтверждение пароля -->
+                    <div class="mb-4">
+                        <label for="id_password2" class="form-label">
+                            <i class="bi bi-lock-fill me-2"></i>Подтвердите пароль
+                        </label>
+                        <div class="input-group">
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="id_password2" 
+                                   name="password2" 
+                                   placeholder="Повторите пароль..."
+                                   required>
+                            <button class="btn btn-outline-secondary" 
+                                    type="button" 
+                                    onclick="togglePassword('id_password2', 'toggleIcon2')">
+                                <i class="bi bi-eye" id="toggleIcon2"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            Пожалуйста, подтвердите пароль.
+                        </div>
+                    </div>
+
+                    <!-- Согласие с условиями -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="termsCheck" 
+                                   required>
+                            <label class="form-check-label" for="termsCheck">
+                                Я согласен с <a href="#" class="text-primary">условиями использования</a> и <a href="#" class="text-primary">политикой конфиденциальности</a>
+                            </label>
+                            <div class="invalid-feedback">
+                                Необходимо принять условия использования.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка регистрации -->
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Создать аккаунт
+                        </button>
+                    </div>
+
+                    <!-- Разделитель -->
+                    <div class="text-center mb-4">
+                        <hr class="my-4">
+                        <span class="text-muted bg-white px-3">или</span>
+                    </div>
+
+                    <!-- Ссылка на вход -->
+                    <div class="text-center">
+                        <p class="mb-3">Уже есть аккаунт?</p>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                        </a>
+                    </div>
+                </form>
             </div>
-
         </div>
+    </div>
 
+    <!-- Преимущества -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-10">
+            <div class="glass-effect rounded-3 p-4">
+                <h5 class="text-white mb-4 text-center">
+                    <i class="bi bi-star me-2"></i>Почему выбирают MyTasks?
+                </h5>
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="text-white">
+                            <i class="bi bi-lightning-charge fs-1 mb-2"></i>
+                            <h6>Быстро</h6>
+                            <small class="text-white-50">Мгновенное создание и управление задачами</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="text-white">
+                            <i class="bi bi-shield-check fs-1 mb-2"></i>
+                            <h6>Безопасно</h6>
+                            <small class="text-white-50">Ваши данные защищены и приватны</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="text-white">
+                            <i class="bi bi-graph-up fs-1 mb-2"></i>
+                            <h6>Эффективно</h6>
+                            <small class="text-white-50">Повысьте продуктивность с умным планированием</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="text-white">
+                            <i class="bi bi-heart fs-1 mb-2"></i>
+                            <h6>Просто</h6>
+                            <small class="text-white-50">Интуитивно понятный интерфейс</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-{% endblock main %}
+<script>
+// Валидация формы
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Переключение видимости пароля
+function togglePassword(fieldId, iconId) {
+    const passwordField = document.getElementById(fieldId);
+    const toggleIcon = document.getElementById(iconId);
+    
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.className = 'bi bi-eye';
+    }
+}
+
+// Проверка совпадения паролей
+document.addEventListener('DOMContentLoaded', function() {
+    const password1 = document.getElementById('id_password1');
+    const password2 = document.getElementById('id_password2');
+    
+    function validatePasswords() {
+        if (password1.value !== password2.value) {
+            password2.setCustomValidity('Пароли не совпадают');
+        } else {
+            password2.setCustomValidity('');
+        }
+    }
+    
+    password1.addEventListener('input', validatePasswords);
+    password2.addEventListener('input', validatePasswords);
+});
+</script>
+{% endblock %}
